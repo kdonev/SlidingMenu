@@ -987,5 +987,21 @@ public class SlidingMenu extends RelativeLayout {
 			});
 		}
 	}
-
+	
+	public void showOpenHint()
+	{
+		mHandler.postDelayed(new Runnable() {
+			public void run() {
+				int scrollX = mViewAbove.getDestScrollX(0) / 2;
+				mViewAbove.smoothScrollTo(scrollX, 0, 800);
+			}
+		}, 100);
+		
+		mHandler.postDelayed(new Runnable() {
+			public void run() {
+				mViewAbove.smoothScrollTo(0, 0, 600);
+			}
+		}, 800);
+		
+	}
 }
