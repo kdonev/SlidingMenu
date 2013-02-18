@@ -53,6 +53,10 @@ public class CustomViewBehind extends ViewGroup {
 		mWidthOffset = i;
 		requestLayout();
 	}
+	
+	public void setWidthOffsetWoLayout(int i) {
+		mWidthOffset = i;
+	}
 
 	public int getBehindWidth() {
 		return mContent.getWidth();

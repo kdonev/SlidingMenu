@@ -1,7 +1,5 @@
 package com.slidingmenu.lib;
 
-import java.lang.reflect.Method;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -10,7 +8,6 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -19,11 +16,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
@@ -71,6 +66,8 @@ public class SlidingMenu extends RelativeLayout {
 	private OnOpenListener mOpenListener;
 
 	private OnCloseListener mCloseListener;
+
+	private int _behindWidth;
 
 	/**
 	 * The listener interface for receiving onOpen events.
@@ -580,6 +577,12 @@ public class SlidingMenu extends RelativeLayout {
 		//		int top = params.topMargin;
 		//		int left = params.leftMargin;
 		//		params.setMargins(left, top, i, bottom);
+		_behindWidth = -1;
+		setBehindOffsetImpl(i);
+	}
+	
+	public void setBehindOffsetImpl(int i)
+	{
 		mViewBehind.setWidthOffset(i);
 	}
 
@@ -618,21 +621,10 @@ public class SlidingMenu extends RelativeLayout {
 	 *
 	 * @param i The width the Sliding Menu will open to, in pixels
 	 */
-	public void setBehindWidth(int i) {
-		int width;
-		Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-				.getDefaultDisplay();
-		try {
-			Class<?> cls = Display.class;
-			Class<?>[] parameterTypes = {Point.class};
-			Point parameter = new Point();
-			Method method = cls.getMethod("getSize", parameterTypes);
-			method.invoke(display, parameter);
-			width = parameter.x;
-		} catch (Exception e) {
-			width = display.getWidth();
-		}
-		setBehindOffset(width-i);
+	public void setBehindWidth(int i)
+	{
+		_behindWidth = i;
+		requestLayout();
 	}
 
 	/**
@@ -1003,5 +995,40 @@ public class SlidingMenu extends RelativeLayout {
 			}
 		}, 800);
 		
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
+		if (_behindWidth > 0)
+		{
+			int w = MeasureSpec.getSize(widthMeasureSpec);
+			
+			if (w > 0)
+			{
+				int offset = w - _behindWidth;
+				if (offset < 0)
+					offset = 0;
+				
+				mViewBehind.setWidthOffsetWoLayout(offset);
+			}
+		}
+		
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b)
+	{
+		if (_behindWidth > 0)
+		{
+			int offset = r - l - _behindWidth;
+			if (offset < 0)
+				offset = 0;
+			
+			mViewBehind.setWidthOffsetWoLayout(offset);
+		}
+		
+		super.onLayout(changed, l, t, r, b);
 	}
 }
