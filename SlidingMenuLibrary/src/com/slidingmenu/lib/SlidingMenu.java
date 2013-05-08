@@ -292,6 +292,17 @@ public class SlidingMenu extends RelativeLayout {
 	 * @param actionbarOverlay whether or not the ActionBar is overlaid
 	 */
 	public void attachToActivity(Activity activity, int slideStyle, boolean actionbarOverlay) {
+		attachToActivity(activity, slideStyle, android.R.id.content, actionbarOverlay);
+	}
+	
+	/**
+	 * Attaches the SlidingMenu to an entire Activity
+	 * 
+	 * @param activity the Activity
+	 * @param slideStyle either SLIDING_CONTENT or SLIDING_WINDOW
+	 * @param actionbarOverlay whether or not the ActionBar is overlaid
+	 */
+	public void attachToActivity(Activity activity, int slideStyle, int parentView, boolean actionbarOverlay) {
 		if (slideStyle != SLIDING_WINDOW && slideStyle != SLIDING_CONTENT)
 			throw new IllegalArgumentException("slideStyle must be either SLIDING_WINDOW or SLIDING_CONTENT");
 
@@ -317,7 +328,7 @@ public class SlidingMenu extends RelativeLayout {
 		case SLIDING_CONTENT:
 			mActionbarOverlay = actionbarOverlay;
 			// take the above view out of
-			ViewGroup contentParent = (ViewGroup)activity.findViewById(android.R.id.content);
+			ViewGroup contentParent = (ViewGroup)activity.findViewById(parentView);
 			View content = contentParent.getChildAt(0);
 			contentParent.removeView(content);
 			contentParent.addView(this);
